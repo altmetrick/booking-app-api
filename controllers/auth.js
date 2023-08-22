@@ -29,7 +29,7 @@ export const register = async (req, res, next) => {
     //- creating and sending access token in cookie for just registered user
     const payload = {
       userId: newUser._id,
-      name: newUser.name,
+      email: newUser.email,
     };
     const accessToken = await jwt.sign(payload, process.env.JWT_REFRESH_TOKEN_SECRET, {
       expiresIn: '1d',

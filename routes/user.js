@@ -3,9 +3,9 @@ import express from 'express';
 const router = express.Router();
 
 router.get('/info', (req, res) => {
-  const { authMessage } = req;
+  const { user } = req;
 
-  res.json({ user: 'some info', message: authMessage });
+  res.json({ user });
 });
 
 export default router;
