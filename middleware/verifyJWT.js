@@ -16,9 +16,7 @@ export const verifyJWT = (req, res, next) => {
   }
 
   if (!token) {
-    //return res.sendStatus(403).json({ message: 'Authentication Invalid!' });
-    // calling next() with error so our errorHandle middleware will get the error
-    return next(createError({ status: 403, message: 'Authentication Invalid!' }));
+    return next(createError({ status: 403, message: 'Forbidden!' }));
   }
 
   return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET, (err, decoded) => {

@@ -73,7 +73,7 @@ export const login = async (req, res, next) => {
     }
 
     const payload = {
-      id: foundUser._id,
+      userId: foundUser._id,
       email: foundUser.email,
     };
     const accessToken = await jwt.sign(payload, process.env.JWT_REFRESH_TOKEN_SECRET, {
@@ -98,4 +98,20 @@ export const login = async (req, res, next) => {
 export const logout = async (req, res, next) => {
   res.clearCookie('access_token', { httpOnly: true, sameSite: 'None', secure: true });
   return res.status(200).json({ message: 'Logout success!' });
+};
+
+export const isLoggedIn = (req, res, next) => {
+  const token = req.cookies.access_token;
+
+  if (!token) {
+    return res.json({ isLoggedIn: false });
+  }
+
+  return jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET, (err) => {
+    if (err) {
+      return res.json({ isLoggedIn: false });
+    }
+
+    return res.json({ isLoggedIn: true });
+  });
 };
