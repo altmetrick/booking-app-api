@@ -27,8 +27,13 @@ export const uploadPhotoByLink = async (req, res, next) => {
     dest: path.join(__dirname, '..', 'uploads', newPhotoName),
   };
   try {
+    //dynamically creating new photoUrl
+    const host = req.headers.host;
+    const photoUrl = `${req.protocol}://${host}/api/uploads/${newPhotoName}`;
+
     await imageDownloader.image(options);
-    return res.json({ photoUrl: newPhotoName });
+    //also sending photo name as we will use it as 'id' for deleting the photo from storage
+    return res.json({ photo: { url: photoUrl, name: newPhotoName } });
   } catch (err) {
     return next(createError({ status: 500, message: err.message }));
   }
@@ -43,7 +48,7 @@ export const deletePhotoByName = async (req, res, next) => {
   //
   try {
     await fs.unlinkSync(path.join(__dirname, '..', 'uploads', photoName));
-    return res.json({ message: `Image with url ${photoName} is deleted.` });
+    return res.json({ message: `Image with name ${photoName} is deleted.` });
   } catch (err) {
     next(createError({ status: 500, message: err.message }));
   }

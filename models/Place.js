@@ -23,7 +23,7 @@ const PlaceSchema = new mongoose.Schema(
       maxLength: [50, 'Address cannot be more than 50 characters'],
     },
     photos: {
-      type: [String],
+      type: [{ url: String, name: String }],
       required: [true, 'Provided photos for a new place'],
     },
     perks: {
