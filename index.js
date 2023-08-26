@@ -2,6 +2,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+import * as path from 'path';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -17,7 +18,6 @@ import allRoutes from './routes/index.js';
 const app = express();
 //
 const allowedOrigins = ['http://localhost:5173'];
-
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
@@ -36,6 +36,9 @@ app.use(morgan('tiny'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+//serve uploaded images as static so it will be possible for client
+//get images by 'BASE_URL/api/uploads/imageName'
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //Routes
 app.get('/api/test', (req, res) => {
