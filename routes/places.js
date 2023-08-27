@@ -1,5 +1,6 @@
 import express from 'express';
 import { verifyJWT } from '../middleware/verifyJWT.js';
+import { upload } from '../middleware/upload.js';
 
 import {
   getAllPlaces,
@@ -16,9 +17,11 @@ import {
 const router = express.Router();
 
 router.post('/photo-by-link', verifyJWT, uploadPhotoByLink);
-router.delete('/photo-by-link/:photoName', verifyJWT, deletePhotoByName);
+router.delete('/photos/:photoName', verifyJWT, deletePhotoByName);
 
-router.post('/photo', verifyJWT, uploadPhotos);
+// upload.array('$Name', 4) - name should be the same as in <input type type="file" name="$Name" ../>
+// and when appending on the client  filesData.append(`$Name`, newImgFiles[i]);
+router.post('/photos', verifyJWT, upload.array('photos', 4), uploadPhotos);
 
 // '/places'
 router.get('/me', verifyJWT, getAllUserPlaces);
