@@ -8,6 +8,7 @@ import * as fs from 'fs';
 
 import imageDownloader from 'image-downloader';
 import { createError } from '../utils/create-error.js';
+import Place from '../models/Place.js';
 
 //
 
@@ -19,18 +20,19 @@ export const uploadPhotoByLink = async (req, res, next) => {
     return next(createError({ status: 400, message: 'Url for the photo must be provided!' }));
   }
   //here using imageDownloader to download photo by provided Url by client:
-  //and sending back url to the stored photo so client could render the photo
   const newPhotoName = 'photo' + Date.now() + '.jpg';
   const options = {
     url: photoUrl,
     dest: path.join(__dirname, '..', 'uploads', newPhotoName),
   };
   try {
+    const result = await imageDownloader.image(options);
+
+    //when image is uploaded we need to send back an url for this image on client
     //dynamically creating new photoUrl, as host, protocol will change when app will be deployed
     const host = req.headers.host;
     const photoUrl = `${req.protocol}://${host}/api/uploads/${newPhotoName}`;
 
-    await imageDownloader.image(options);
     //also sending photo name, so we'll be able to use it as 'id' for deleting the photo from storage
     return res.json({ photo: { url: photoUrl, name: newPhotoName } });
   } catch (err) {
@@ -44,24 +46,37 @@ export const deletePhotoByName = async (req, res, next) => {
   if (!photoName) {
     return next(createError({ status: 400, message: 'Photo name must be provided!' }));
   }
-  // - check if the file (photoName) is existing in uploads folder
 
-  //
+  const imagePath = path.join(__dirname, '..', 'uploads', photoName);
+
   try {
-    await fs.unlinkSync(path.join(__dirname, '..', 'uploads', photoName));
-    return res.json({ message: `Image with name ${photoName} is deleted.` });
+    // check if photo exists
+    if (!fs.existsSync(imagePath)) {
+      return next(createError({ status: 404, message: 'Image not found!' }));
+    }
+    //delete photo from server storage
+    await fs.unlinkSync(imagePath);
+
+    // also need to update a Place which has deleted image in its photos array
+    await Place.updateMany(
+      { 'photos.name': photoName }, // Find places with the specific photoName in their photos array
+      { $pull: { photos: { name: photoName } } } // Remove the reference to the deleted image
+    );
+
+    return res.json({ message: `Photo - ${photoName} is deleted.` });
   } catch (err) {
     next(createError({ status: 500, message: err.message }));
   }
 };
 
 export const uploadPhotos = async (req, res, next) => {
+  //const photoDocsJson = JSON.parse(req.body.photosDocs);
+
   //read files which is provided by multer middleware to req object
   const { files } = req;
 
   //creating [{url: string, name: string}] of uploaded images;
   const host = req.headers.host;
-
   //mapping files to create photos objects with urls of uploaded images
   const photos = files.map((file) => ({
     url: `${req.protocol}://${host}/api/uploads/${file.filename}`,
@@ -69,13 +84,6 @@ export const uploadPhotos = async (req, res, next) => {
   }));
 
   return res.json({ photos, message: 'Photo uploaded' });
-  //single file
-  // const {file} = req
-  // ... host
-  // const photo = {
-  //   url: `${req.protocol}://${host}/api/uploads/${file.filename}`,
-  //   name: file.filename,
-  // };
 };
 
 // route '/places
@@ -98,6 +106,8 @@ export const getAllUserPlaces = async (req, res, next) => {
 
 export const createPlace = async (req, res, next) => {
   const { userId } = req.user;
+  const { place } = req.body;
+
   res.json({ message: `create place` });
 };
 

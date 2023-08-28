@@ -5,6 +5,7 @@ const __dirname = dirname(__filename);
 import * as path from 'path';
 
 import multer from 'multer';
+import { createError } from '../utils/create-error.js';
 
 const destinationPath = path.join(__dirname, '..', 'uploads');
 

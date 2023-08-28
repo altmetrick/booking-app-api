@@ -10,6 +10,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import multer from 'multer';
 
 import connectDB from './db/connect.js';
 
@@ -50,6 +51,14 @@ app.use('/api', allRoutes);
 // Error Handling
 app.use((err, req, res, next) => {
   console.log(err);
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      err.status = 400;
+      err.message = 'Upload failed, amount should be les than 5 photos!';
+    }
+    err.message = err.code;
+  }
+
   const status = err.status || 500;
   const message = err.message || 'Internal server error!';
 

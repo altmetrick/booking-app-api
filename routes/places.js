@@ -21,7 +21,7 @@ router.delete('/photos/:photoName', verifyJWT, deletePhotoByName);
 
 // upload.array('$Name', 4) - name should be the same as in <input type type="file" name="$Name" ../>
 // and when appending on the client  filesData.append(`$Name`, newImgFiles[i]);
-router.post('/photos', verifyJWT, upload.array('photos', 4), uploadPhotos);
+router.post('/photos', verifyJWT, upload.array('photos', 5), uploadPhotos);
 
 // '/places'
 router.get('/me', verifyJWT, getAllUserPlaces);
