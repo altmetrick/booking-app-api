@@ -106,26 +106,14 @@ export const getAllUserPlaces = async (req, res, next) => {
   res.json({ message: `get all user places` });
 };
 
-//// -----
-
-// title,
-//       description,
-//       address,
-//       photos,
-//       perks,
-//       extraInfo,
-//       checkIn,
-//       checkOut,
-//       maxGuests,
-
 export const createPlace = async (req, res, next) => {
   const { userId } = req.user;
   const { title, description, address, photos, perks, extraInfo, checkIn, checkOut, maxGuests } =
     req.body;
 
-  res.json({
-    message: `create place`,
-    newPlace: {
+  try {
+    const place = await Place.create({
+      owner: userId,
       title,
       description,
       address,
@@ -135,11 +123,16 @@ export const createPlace = async (req, res, next) => {
       checkIn,
       checkOut,
       maxGuests,
-    },
-  });
-};
+    });
 
-////----
+    res.status(200).json({
+      message: `New place was created.`,
+      place,
+    });
+  } catch (err) {
+    return next(err);
+  }
+};
 
 export const updatePlace = async (req, res, next) => {
   const { id } = req.params;

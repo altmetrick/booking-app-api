@@ -32,7 +32,7 @@ export const register = async (req, res, next) => {
       email: newUser.email,
     };
     const accessToken = await jwt.sign(payload, process.env.JWT_REFRESH_TOKEN_SECRET, {
-      expiresIn: '1d',
+      expiresIn: '5',
     });
 
     return res
@@ -77,7 +77,7 @@ export const login = async (req, res, next) => {
       email: foundUser.email,
     };
     const accessToken = await jwt.sign(payload, process.env.JWT_REFRESH_TOKEN_SECRET, {
-      expiresIn: '1d',
+      expiresIn: '5d',
     });
 
     return res
