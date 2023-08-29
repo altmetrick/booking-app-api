@@ -6,6 +6,8 @@ const __dirname = dirname(__filename);
 import * as path from 'path';
 import * as fs from 'fs';
 
+import { validationResult } from 'express-validator';
+
 import imageDownloader from 'image-downloader';
 import { createError } from '../utils/create-error.js';
 import Place from '../models/Place.js';
@@ -104,12 +106,40 @@ export const getAllUserPlaces = async (req, res, next) => {
   res.json({ message: `get all user places` });
 };
 
+//// -----
+
+// title,
+//       description,
+//       address,
+//       photos,
+//       perks,
+//       extraInfo,
+//       checkIn,
+//       checkOut,
+//       maxGuests,
+
 export const createPlace = async (req, res, next) => {
   const { userId } = req.user;
-  const { place } = req.body;
+  const { title, description, address, photos, perks, extraInfo, checkIn, checkOut, maxGuests } =
+    req.body;
 
-  res.json({ message: `create place` });
+  res.json({
+    message: `create place`,
+    newPlace: {
+      title,
+      description,
+      address,
+      photos,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+    },
+  });
 };
+
+////----
 
 export const updatePlace = async (req, res, next) => {
   const { id } = req.params;

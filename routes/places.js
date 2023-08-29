@@ -1,6 +1,7 @@
 import express from 'express';
 import { verifyJWT } from '../middleware/verifyJWT.js';
 import { upload } from '../middleware/upload.js';
+import { validateCreatePlaceInput, validateRequest } from '../middleware/validation.js';
 
 import {
   getAllPlaces,
@@ -25,7 +26,7 @@ router.post('/photos', verifyJWT, upload.array('photos', 5), uploadPhotos);
 
 // '/places'
 router.get('/me', verifyJWT, getAllUserPlaces);
-router.post('/me', verifyJWT, createPlace);
+router.post('/me', validateCreatePlaceInput, validateRequest, verifyJWT, createPlace);
 router.patch('/me/:id', verifyJWT, updatePlace);
 router.delete('/me/:id', verifyJWT, deletePlace);
 
