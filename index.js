@@ -54,7 +54,7 @@ app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {
       err.status = 400;
-      err.message = 'Upload failed, amount should be les than 5 photos!';
+      err.message = 'Upload failed, amount of photos should be les than 5!';
     }
     err.message = err.code;
   }

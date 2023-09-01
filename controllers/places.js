@@ -65,7 +65,7 @@ export const deletePhotoByName = async (req, res, next) => {
       { $pull: { photos: { name: photoName } } } // Remove the reference to the deleted image
     );
 
-    return res.json({ message: `Photo - ${photoName} is deleted.` });
+    return res.json({ message: `Photo - ${photoName} is deleted.`, name: photoName });
   } catch (err) {
     next(createError({ status: 500, message: err.message }));
   }
@@ -103,7 +103,14 @@ export const getPlace = async (req, res, next) => {
 //for protected route : '/places/me
 export const getAllUserPlaces = async (req, res, next) => {
   const { userId } = req.user;
-  res.json({ message: `get all user places` });
+
+  try {
+    const places = await Place.find({ owner: userId }).exec();
+
+    return res.status(200).json({ places });
+  } catch (err) {
+    return next(err);
+  }
 };
 
 export const createPlace = async (req, res, next) => {
@@ -125,7 +132,7 @@ export const createPlace = async (req, res, next) => {
       maxGuests,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: `New place was created.`,
       place,
     });
@@ -137,11 +144,66 @@ export const createPlace = async (req, res, next) => {
 export const updatePlace = async (req, res, next) => {
   const { id } = req.params;
   const { userId } = req.user;
-  res.json({ message: `update users place id:${id}` });
+  const { placeData } = req.body;
+
+  if (!placeData) {
+    return next({ status: 400, message: 'Provide place data to update' });
+  }
+
+  try {
+    const foundPlace = await Place.findById(id);
+
+    if (!foundPlace) {
+      return next(createError({ status: 404, message: `Place with id: ${id} does not exist` }));
+    }
+    if (foundPlace.owner.toString() !== userId) {
+      return next(createError({ status: 404, message: `It is not your place!` }));
+    }
+
+    const updatedPlace = await Place.findByIdAndUpdate(
+      { _id: id },
+      { ...placeData },
+      { new: true, runValidators: true }
+    ).exec();
+
+    return res.status(200).json({ place: updatedPlace, message: 'Place successfully updated!' });
+  } catch (err) {
+    return next(err);
+  }
 };
 
 export const deletePlace = async (req, res, next) => {
   const { id } = req.params;
   const { userId } = req.user;
-  res.json({ message: `delete users place id:${id}` });
+
+  try {
+    const foundPlace = await Place.findById(id);
+
+    if (!foundPlace) {
+      return next(createError({ status: 404, message: `Place with id: ${id} does not exist` }));
+    }
+    if (foundPlace.owner.toString() !== userId) {
+      return next(createError({ status: 404, message: `It is not your place!` }));
+    }
+
+    //Before deleting a  place from the DB, delete all it's photos from the storage
+
+    const photos = foundPlace.toObject().photos;
+    for (let i = 0; i < photos.length; i++) {
+      const photo = photos[i];
+      const imagePath = path.join(__dirname, '..', 'uploads', photo.name);
+      // check if photo exists
+      if (!fs.existsSync(imagePath)) {
+        continue;
+      }
+      //delete photo from server storage
+      await fs.unlinkSync(imagePath);
+    }
+
+    const deletedPlace = await Place.findByIdAndDelete({ _id: id }).exec();
+
+    return res.status(200).json({ id, message: 'Place successfully updated!' });
+  } catch (err) {
+    return next(err);
+  }
 };

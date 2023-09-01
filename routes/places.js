@@ -17,6 +17,8 @@ import {
 
 const router = express.Router();
 
+// '/places'
+
 router.post('/photo-by-link', verifyJWT, uploadPhotoByLink);
 router.delete('/photos/:photoName', verifyJWT, deletePhotoByName);
 
