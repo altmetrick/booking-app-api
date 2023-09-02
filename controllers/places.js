@@ -91,12 +91,33 @@ export const uploadPhotos = async (req, res, next) => {
 // route '/places
 //For all users
 export const getAllPlaces = async (req, res, next) => {
-  res.json({ message: 'Got all places' });
+  try {
+    const places = await Place.find().exec();
+
+    return res.status(200).json(places);
+  } catch (err) {
+    return next(err);
+  }
 };
 
 export const getPlace = async (req, res, next) => {
   const { id } = req.params;
-  res.json({ message: `got place with id: ${id}` });
+
+  if (!id) {
+    return next(createError({ status: 400, message: 'Id of the place must be provided!' }));
+  }
+
+  try {
+    const place = await Place.findOne({ _id: id });
+
+    if (!place) {
+      return next(createError({ status: 404, message: `Place with id: ${id} does not exist!` }));
+    }
+
+    return res.status(200).json({ place });
+  } catch (err) {
+    return next(err);
+  }
 };
 
 //For authorized users
@@ -202,7 +223,7 @@ export const deletePlace = async (req, res, next) => {
 
     const deletedPlace = await Place.findByIdAndDelete({ _id: id }).exec();
 
-    return res.status(200).json({ id, message: 'Place successfully updated!' });
+    return res.status(200).json({ id, message: 'Place successfully deleted!' });
   } catch (err) {
     return next(err);
   }

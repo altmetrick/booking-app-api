@@ -28,7 +28,7 @@ router.post('/photos', verifyJWT, upload.array('photos', 5), uploadPhotos);
 
 // '/places'
 router.get('/me', verifyJWT, getAllUserPlaces);
-router.post('/me', validateCreatePlaceInput, validateRequest, verifyJWT, createPlace);
+router.post('/me', verifyJWT, validateCreatePlaceInput, validateRequest, createPlace);
 router.patch('/me/:id', verifyJWT, updatePlace);
 router.delete('/me/:id', verifyJWT, deletePlace);
 
