@@ -24,4 +24,5 @@ export const validateCreatePlaceInput = [
   body('checkIn').notEmpty().withMessage('Check in  must be provided'),
   body('checkOut').notEmpty().withMessage('Check out must be provided'),
   body('maxGuests').notEmpty().withMessage('Amount of max guests must be provided'),
+  body('price').notEmpty().withMessage('Price per night must be provided'),
 ];

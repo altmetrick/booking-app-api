@@ -44,6 +44,10 @@ const PlaceSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Provide max guests'],
     },
+    price: {
+      type: Number,
+      required: [true, 'Provide price per night'],
+    },
   },
   { timestamps: true }
 );

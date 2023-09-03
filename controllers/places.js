@@ -94,7 +94,7 @@ export const getAllPlaces = async (req, res, next) => {
   try {
     const places = await Place.find().exec();
 
-    return res.status(200).json(places);
+    return res.status(200).json({ places });
   } catch (err) {
     return next(err);
   }
@@ -136,8 +136,18 @@ export const getAllUserPlaces = async (req, res, next) => {
 
 export const createPlace = async (req, res, next) => {
   const { userId } = req.user;
-  const { title, description, address, photos, perks, extraInfo, checkIn, checkOut, maxGuests } =
-    req.body;
+  const {
+    title,
+    description,
+    address,
+    photos,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+    price,
+  } = req.body;
 
   try {
     const place = await Place.create({
@@ -151,6 +161,7 @@ export const createPlace = async (req, res, next) => {
       checkIn,
       checkOut,
       maxGuests,
+      price,
     });
 
     return res.status(200).json({
