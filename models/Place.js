@@ -48,6 +48,9 @@ const PlaceSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Provide price per night'],
     },
+    bookingRanges: {
+      type: [{ start: String, end: String }],
+    },
   },
   { timestamps: true }
 );
