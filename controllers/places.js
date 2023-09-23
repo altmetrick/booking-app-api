@@ -92,9 +92,46 @@ export const uploadPhotos = async (req, res, next) => {
 //For all users
 export const getAllPlaces = async (req, res, next) => {
   try {
-    const places = await Place.find().exec();
+    const queryObject = { ...req.query };
 
-    return res.status(200).json({ places });
+    if (req.query.address) {
+      queryObject.address = { $regex: req.query.address, $options: 'i' };
+    }
+
+    //Filter ranges
+    // /price?price[gt]=100&price[lt]=500  // req.params.price / {gt: '100', lt: '500'} => {$gt: '100', $lt: '500'}
+    const removeFields = ['page', 'limit', 'sort'];
+    removeFields.forEach((param) => delete queryObject[param]);
+
+    let queryStr = JSON.stringify(queryObject);
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (match) => `$${match}`);
+
+    console.log(queryStr);
+
+    let result = Place.find(JSON.parse(queryStr));
+
+    //Sort
+    //field: val:  -1 for descending (3, 2, 1) order and 1 for ascending ( 1, 2, 3)
+    if (req.query.sort) {
+      const sortList = req.query.sort.split(',').join(' ');
+      result = result.sort(sortList);
+    }
+
+    //Pagination - implementing pagination using skip and limit methods
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    result = result.skip(skip).limit(limit);
+
+    //Note that we await places after all operations with the result (filter, sort...)
+    const places = await result;
+
+    //Counting all places that match our filters
+    //it is necessary to create pagination on front-end
+    const count = await Place.countDocuments(JSON.parse(queryStr));
+
+    return res.status(200).json({ places, count });
   } catch (err) {
     return next(err);
   }

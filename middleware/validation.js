@@ -33,4 +33,5 @@ export const validateCreateBookingInput = [
   body('checkOut').notEmpty().withMessage('Checkout date is required'),
   body('name').notEmpty().withMessage('User(tenant) full name is required'),
   body('phone').notEmpty().withMessage('User(tenant) phone number is required'),
+  body('price').notEmpty().withMessage('Price is required'),
 ];

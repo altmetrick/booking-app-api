@@ -5,6 +5,14 @@ import { createError } from '../utils/create-error.js';
 export const getAllBookings = async (req, res, next) => {
   const { userId } = req.user;
 
+  try {
+    const bookings = await Booking.find({ bookedBy: userId }).populate('place').exec();
+
+    return res.status(200).json({ bookings });
+  } catch (err) {
+    next(err);
+  }
+
   return res.json({ bookings: 'All bookings' });
 };
 
@@ -16,7 +24,7 @@ export const getOneBooking = async (req, res, next) => {
 
 export const createBooking = async (req, res, next) => {
   const { userId } = req.user;
-  const { place, bookedBy, checkIn, checkOut, name, phone } = req.body;
+  const { place, checkIn, checkOut, name, phone, price } = req.body;
 
   try {
     const foundPlace = await Place.findById(place);
@@ -36,20 +44,19 @@ export const createBooking = async (req, res, next) => {
     const updatedPlace = await foundPlace.save();
 
     const booking = await Booking.create({
-      place,
+      place: foundPlace,
       bookedBy: userId,
       checkIn,
       checkOut,
       name,
       phone,
+      price,
     });
 
     return res.status(200).json({ booking, message: 'Booked successfully!' });
   } catch (err) {
     return next(err);
   }
-
-  return res.json({ message: 'Booking created!' });
 };
 
 export const deleteBooking = (req, res, next) => {

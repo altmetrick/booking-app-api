@@ -4,7 +4,7 @@ const BookingSchema = new mongoose.Schema(
   {
     place: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Places',
+      ref: 'Place',
       required: [true, 'Provide place id'],
     },
     bookedBy: {
@@ -28,6 +28,10 @@ const BookingSchema = new mongoose.Schema(
     phone: {
       type: Number,
       required: [true, 'Provide your phone'],
+    },
+    price: {
+      type: Number,
+      required: [true, 'Provide your total price'],
     },
   },
   { timestamps: true }
